@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,13 +16,6 @@ public class CalendarMonthView : MonoBehaviour
     private DateTime visibleMonth;
     private DateTime today;
 
-
-    private Dictionary<DateTime, int> eventCounts = new();
-
-    private int GetEventCount(DateTime date)
-    {
-        return eventCounts.TryGetValue(date.Date, out int count) ? count : 0;
-    }
     private void Awake()
     {
         today = DateTime.Today;
