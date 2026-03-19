@@ -13,6 +13,10 @@ public class CalendarMonthView : MonoBehaviour
     [Header("Grid")]
     [SerializeField] private CalendarDayCell[] cells; // must be 42 cells
 
+    [Header("Setup")]
+    [SerializeField] private Color cellImageColor = Color.white;
+    [SerializeField] private TMP_FontAsset dateFont;
+
     [Header("Editor")]
     [SerializeField] private bool updateToCurrentDayInEditor = true;
 
@@ -24,24 +28,22 @@ public class CalendarMonthView : MonoBehaviour
     private void OnValidate()
     {
         if (Application.isPlaying)
+        {
             return;
+        }
+
+        today = DateTime.Today;
+        string todayKey = today.ToString("yyyy-MM-dd");
 
         if (!updateToCurrentDayInEditor)
         {
             lastValidatedDate = string.Empty;
-            return;
-        }
+            if (visibleMonth.Year < 2)
+            {
+                visibleMonth = new DateTime(today.Year, today.Month, 1);
+            }
 
-        EnsureStateInitialized(false);
-
-        string todayKey = today.ToString("yyyy-MM-dd");
-        
-        if (lastValidatedDate == todayKey)
-            return;
-
-        if (IsShowingToday())
-        {
-            lastValidatedDate = todayKey;
+            Refresh();
             return;
         }
 
@@ -120,38 +122,13 @@ public class CalendarMonthView : MonoBehaviour
             bool isCurrentMonth = cellDate.Month == visibleMonth.Month &&
                                   cellDate.Year == visibleMonth.Year;
 
-            bool isToday = cellDate.Date == today;
+            cells[i].ApplyAppearance(dateFont, cellImageColor);
+
+            bool isToday = isCurrentMonth && cellDate.Date == today;
 
             cells[i].Bind(cellDate, isCurrentMonth, isToday, OnDateClicked);
         }
     }
-
-    private bool IsShowingToday()
-    {
-        if (monthLabel == null || cells == null)
-        {
-            return false;
-        }
-
-        DateTime currentMonth = new DateTime(today.Year, today.Month, 1);
-        if (visibleMonth.Year < 2 || visibleMonth != currentMonth)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < cells.Length; i++)
-        {
-            if (cells[i] != null &&
-                cells[i].IsBoundToDate(today) &&
-                cells[i].DisplaysDayNumber(today.Day))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private void OnDateClicked(DateTime date)
     {
         Debug.Log("Clicked: " + date.ToShortDateString());

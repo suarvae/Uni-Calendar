@@ -13,8 +13,12 @@ public class CalendarDayCell : MonoBehaviour
 
     private DateTime date;
     private Action<DateTime> onClicked;
+    private TMP_FontAsset defaultFont;
+    private bool hasDefaultFont;
     private TMPro.FontStyles defaultFontStyle;
     private bool hasDefaultFontStyle;
+    private Color defaultTextColor;
+    private bool hasDefaultTextColor;
 
     public bool IsBoundToDate(DateTime targetDate)
     {
@@ -26,12 +30,28 @@ public class CalendarDayCell : MonoBehaviour
         return dayNumberText != null && dayNumberText.text == day.ToString();
     }
 
+    public void ApplyAppearance(TMP_FontAsset dateFont, Color cellColor)
+    {
+        CaptureDefaults();
+
+        if (dayNumberText != null)
+        {
+            dayNumberText.font = dateFont != null ? dateFont : defaultFont;
+            dayNumberText.color = hasDefaultTextColor ? defaultTextColor : dayNumberText.color;
+        }
+
+        if (button != null && button.image != null)
+        {
+            button.image.color = cellColor;
+        }
+    }
+
     public void Bind(DateTime newDate, bool isCurrentMonth, bool isToday, Action<DateTime> clickCallback)
     {
         date = newDate;
         onClicked = clickCallback;
 
-        CaptureDefaultFontStyle();
+        CaptureDefaults();
 
         dayNumberText.text = newDate.Day.ToString();
         SetAlpha(isCurrentMonth ? CurrentMonthAlpha : InactiveMonthAlpha);
@@ -41,15 +61,30 @@ public class CalendarDayCell : MonoBehaviour
         button.onClick.AddListener(HandleClick);
     }
 
-    private void CaptureDefaultFontStyle()
+    private void CaptureDefaults()
     {
-        if (hasDefaultFontStyle || dayNumberText == null)
+        if (dayNumberText == null)
         {
             return;
         }
 
-        defaultFontStyle = dayNumberText.fontStyle;
-        hasDefaultFontStyle = true;
+        if (!hasDefaultFont)
+        {
+            defaultFont = dayNumberText.font;
+            hasDefaultFont = true;
+        }
+
+        if (!hasDefaultFontStyle)
+        {
+            defaultFontStyle = dayNumberText.fontStyle;
+            hasDefaultFontStyle = true;
+        }
+
+        if (!hasDefaultTextColor)
+        {
+            defaultTextColor = dayNumberText.color;
+            hasDefaultTextColor = true;
+        }
     }
 
     private void SetUnderline(bool isToday)
