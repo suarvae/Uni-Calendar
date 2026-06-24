@@ -17,8 +17,6 @@ namespace Suarvae.UniCalendar
         private Action<DateTime> onClicked;
         private TMP_FontAsset defaultFont;
         private bool hasDefaultFont;
-        private TMPro.FontStyles defaultFontStyle;
-        private bool hasDefaultFontStyle;
         private Color defaultTextColor;
         private bool hasDefaultTextColor;
 
@@ -83,12 +81,6 @@ namespace Suarvae.UniCalendar
                 hasDefaultFont = true;
             }
 
-            if (!hasDefaultFontStyle)
-            {
-                defaultFontStyle = dayNumberText.fontStyle;
-                hasDefaultFontStyle = true;
-            }
-
             if (!hasDefaultTextColor)
             {
                 defaultTextColor = dayNumberText.color;
@@ -103,9 +95,14 @@ namespace Suarvae.UniCalendar
                 return;
             }
 
-            dayNumberText.fontStyle = isToday
-                ? defaultFontStyle | FontStyles.Underline
-                : defaultFontStyle;
+            if (isToday)
+            {
+                dayNumberText.fontStyle |= FontStyles.Underline;
+            }
+            else
+            {
+                dayNumberText.fontStyle &= ~FontStyles.Underline;
+            }
         }
 
         private void SetAlpha(float alpha)

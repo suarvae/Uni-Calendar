@@ -33,10 +33,7 @@ namespace Suarvae.UniCalendar
             }
 
 #if UNITY_EDITOR
-            // Defer the refresh. Writing to TMP/Button state directly inside
-            // OnValidate can raise "SendMessage cannot be called during
-            // OnValidate" warnings and dirty scenes during asset import.
-            // Subtracting before adding keeps a single pending callback.
+            // OnValidate must not mutate TMP/Button state directly; defer it.
             UnityEditor.EditorApplication.delayCall -= EditorRefresh;
             UnityEditor.EditorApplication.delayCall += EditorRefresh;
 #endif
@@ -45,7 +42,6 @@ namespace Suarvae.UniCalendar
 #if UNITY_EDITOR
         private void EditorRefresh()
         {
-            // The component may have been destroyed before the deferred call ran.
             if (this == null || Application.isPlaying)
             {
                 return;

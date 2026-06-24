@@ -25,6 +25,12 @@ follows.
   The asset GUID is preserved, so existing scene references keep working.
 
 ### Fixed
+- The "today" highlight now marks **only** the current day. The cell used to
+  capture an already-underlined style as its baseline, so the underline could
+  stick permanently to a fixed grid position (the day that was "today" when the
+  prefab was last saved) and show on the wrong date. The underline is now
+  toggled as a single style bit on every refresh, and the stale underline baked
+  into the demo prefab was cleared.
 - `CalendarDayCell.Bind` no longer throws a `NullReferenceException` when a cell
   is missing its `dayNumberText` or `button` reference; it now guards them like
   the rest of the class already did.
