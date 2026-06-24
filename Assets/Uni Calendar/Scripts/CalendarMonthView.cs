@@ -3,134 +3,146 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CalendarMonthView : MonoBehaviour
+namespace Suarvae.UniCalendar
 {
-    [Header("Header")]
-    [SerializeField] private TMP_Text monthLabel;
-    [SerializeField] private Button previousButton;
-    [SerializeField] private Button nextButton;
-
-    [Header("Grid")]
-    [SerializeField] private CalendarDayCell[] cells; // must be 42 cells
-
-    [Header("Setup")]
-    [SerializeField] private Color cellImageColor = Color.white;
-    [SerializeField] private TMP_FontAsset dateFont;
-
-    [Header("Editor")]
-    [SerializeField] private bool updateToCurrentDayInEditor = true;
-
-    [SerializeField, HideInInspector] private string lastValidatedDate;
-
-    private DateTime visibleMonth;
-    private DateTime today;
-
-    private void OnValidate()
+    public class CalendarMonthView : MonoBehaviour
     {
-        if (Application.isPlaying)
+        [Header("Header")]
+        [SerializeField] private TMP_Text monthLabel;
+        [SerializeField] private Button previousButton;
+        [SerializeField] private Button nextButton;
+
+        [Header("Grid")]
+        [SerializeField] private CalendarDayCell[] cells; // must be 42 cells
+
+        [Header("Setup")]
+        [SerializeField] private Color cellImageColor = Color.white;
+        [SerializeField] private TMP_FontAsset dateFont;
+
+        [Header("Editor")]
+        [SerializeField] private bool updateToCurrentDayInEditor = true;
+
+        private DateTime visibleMonth;
+        private DateTime today;
+
+        private void OnValidate()
         {
-            return;
+            if (Application.isPlaying)
+            {
+                return;
+            }
+
+#if UNITY_EDITOR
+            // Defer the refresh. Writing to TMP/Button state directly inside
+            // OnValidate can raise "SendMessage cannot be called during
+            // OnValidate" warnings and dirty scenes during asset import.
+            // Subtracting before adding keeps a single pending callback.
+            UnityEditor.EditorApplication.delayCall -= EditorRefresh;
+            UnityEditor.EditorApplication.delayCall += EditorRefresh;
+#endif
         }
 
-        today = DateTime.Today;
-        string todayKey = today.ToString("yyyy-MM-dd");
-
-        if (!updateToCurrentDayInEditor)
+#if UNITY_EDITOR
+        private void EditorRefresh()
         {
-            lastValidatedDate = string.Empty;
-            if (visibleMonth.Year < 2)
+            // The component may have been destroyed before the deferred call ran.
+            if (this == null || Application.isPlaying)
+            {
+                return;
+            }
+
+            today = DateTime.Today;
+
+            if (updateToCurrentDayInEditor || visibleMonth.Year < 2)
             {
                 visibleMonth = new DateTime(today.Year, today.Month, 1);
             }
 
             Refresh();
-            return;
         }
+#endif
 
-        EnsureStateInitialized(true);
-        Refresh();
-        lastValidatedDate = todayKey;
-    }
-
-    private void Awake()
-    {
-        EnsureStateInitialized(true);
-
-        if (previousButton != null)
+        private void Awake()
         {
-            previousButton.onClick.RemoveListener(ShowPreviousMonth);
-            previousButton.onClick.AddListener(ShowPreviousMonth);
-        }
+            EnsureStateInitialized(true);
 
-        if (nextButton != null)
-        {
-            nextButton.onClick.RemoveListener(ShowNextMonth);
-            nextButton.onClick.AddListener(ShowNextMonth);
-        }
-
-        Refresh();
-    }
-
-    private void ShowPreviousMonth()
-    {
-        EnsureStateInitialized(false);
-        visibleMonth = visibleMonth.AddMonths(-1);
-        Refresh();
-    }
-
-    private void ShowNextMonth()
-    {
-        EnsureStateInitialized(false);
-        visibleMonth = visibleMonth.AddMonths(1);
-        Refresh();
-    }
-
-    private void EnsureStateInitialized(bool resetToCurrentMonth)
-    {
-        today = DateTime.Today;
-
-        if (resetToCurrentMonth || visibleMonth.Year < 2)
-        {
-            visibleMonth = new DateTime(today.Year, today.Month, 1);
-        }
-    }
-
-    private void Refresh()
-    {
-        if (monthLabel == null || cells == null)
-        {
-            return;
-        }
-
-        EnsureStateInitialized(false);
-
-        monthLabel.text = visibleMonth.ToString("MMMM yyyy");
-
-        DateTime firstOfMonth = new DateTime(visibleMonth.Year, visibleMonth.Month, 1);
-        int startOffset = (int)firstOfMonth.DayOfWeek;
-        DateTime gridStartDate = firstOfMonth.AddDays(-startOffset);
-
-        for (int i = 0; i < cells.Length; i++)
-        {
-            if (cells[i] == null)
+            if (previousButton != null)
             {
-                continue;
+                previousButton.onClick.RemoveListener(ShowPreviousMonth);
+                previousButton.onClick.AddListener(ShowPreviousMonth);
             }
 
-            DateTime cellDate = gridStartDate.AddDays(i);
+            if (nextButton != null)
+            {
+                nextButton.onClick.RemoveListener(ShowNextMonth);
+                nextButton.onClick.AddListener(ShowNextMonth);
+            }
 
-            bool isCurrentMonth = cellDate.Month == visibleMonth.Month &&
-                                  cellDate.Year == visibleMonth.Year;
-
-            cells[i].ApplyAppearance(dateFont, cellImageColor);
-
-            bool isToday = isCurrentMonth && cellDate.Date == today;
-
-            cells[i].Bind(cellDate, isCurrentMonth, isToday, OnDateClicked);
+            Refresh();
         }
-    }
-    private void OnDateClicked(DateTime date)
-    {
-        Debug.Log("Clicked: " + date.ToShortDateString());
+
+        private void ShowPreviousMonth()
+        {
+            EnsureStateInitialized(false);
+            visibleMonth = visibleMonth.AddMonths(-1);
+            Refresh();
+        }
+
+        private void ShowNextMonth()
+        {
+            EnsureStateInitialized(false);
+            visibleMonth = visibleMonth.AddMonths(1);
+            Refresh();
+        }
+
+        private void EnsureStateInitialized(bool resetToCurrentMonth)
+        {
+            today = DateTime.Today;
+
+            if (resetToCurrentMonth || visibleMonth.Year < 2)
+            {
+                visibleMonth = new DateTime(today.Year, today.Month, 1);
+            }
+        }
+
+        private void Refresh()
+        {
+            if (monthLabel == null || cells == null)
+            {
+                return;
+            }
+
+            EnsureStateInitialized(false);
+
+            monthLabel.text = visibleMonth.ToString("MMMM yyyy");
+
+            DateTime firstOfMonth = new DateTime(visibleMonth.Year, visibleMonth.Month, 1);
+            int startOffset = (int)firstOfMonth.DayOfWeek;
+            DateTime gridStartDate = firstOfMonth.AddDays(-startOffset);
+
+            for (int i = 0; i < cells.Length; i++)
+            {
+                if (cells[i] == null)
+                {
+                    continue;
+                }
+
+                DateTime cellDate = gridStartDate.AddDays(i);
+
+                bool isCurrentMonth = cellDate.Month == visibleMonth.Month &&
+                                      cellDate.Year == visibleMonth.Year;
+
+                cells[i].ApplyAppearance(dateFont, cellImageColor);
+
+                bool isToday = isCurrentMonth && cellDate.Date == today;
+
+                cells[i].Bind(cellDate, isCurrentMonth, isToday, OnDateClicked);
+            }
+        }
+
+        private void OnDateClicked(DateTime date)
+        {
+            Debug.Log("Clicked: " + date.ToShortDateString());
+        }
     }
 }
