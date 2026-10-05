@@ -1474,7 +1474,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8281946276817613970, guid: 453e0be07796a764297d13b6007c28b9, type: 3}
       propertyPath: m_Name
-      value: Calender View
+      value: Calendar View
       objectReference: {fileID: 0}
     - target: {fileID: 8732564443993955434, guid: 453e0be07796a764297d13b6007c28b9, type: 3}
       propertyPath: m_AnchorMax.y

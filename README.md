@@ -2,7 +2,7 @@
 
 `Uni Calendar` is a lightweight Unity monthly calendar UI built with `uGUI`, `TextMeshPro`, and a simple month-navigation workflow. It is meant as a reusable in-project component you can drop into a canvas, style, and extend for your own scheduling, productivity, or date-picking features.
 
-Current release: `0.1.0`
+Current release: `0.2.0`
 
 ## What It Does
 
@@ -34,10 +34,14 @@ Each day cell is handled by `Assets/Uni Calendar/Scripts/CalendarDayCell.cs`, wh
 
 The custom inspector in `Assets/Uni Calendar/Scripts/Editor/CalendarMonthViewEditor.cs` keeps the component setup cleaner inside the Unity Editor.
 
+## Code & Assemblies
+
+All runtime types live in the `Suarvae.UniCalendar` namespace and compile into a dedicated `Suarvae.UniCalendar` assembly definition (with `Suarvae.UniCalendar.Editor` for editor-only code). This keeps the calendar isolated from `Assembly-CSharp`, prevents name collisions with your own code, and keeps incremental compiles fast.
+
 ## Included Assets
 
 - Demo scene: `Assets/Uni Calendar/Scenes/Demo.unity`
-- Reusable prefab: `Assets/Uni Calendar/Prefab/Calender View.prefab`
+- Reusable prefab: `Assets/Uni Calendar/Prefab/Calendar View.prefab`
 - Calendar scripts: `Assets/Uni Calendar/Scripts/`
 
 ## Unity Version
@@ -48,7 +52,7 @@ Built in `Unity 6` with editor version `6000.3.9f1`.
 
 1. Open the project in Unity.
 2. Open `Assets/Uni Calendar/Scenes/Demo.unity` to see the calendar in use.
-3. Drag `Assets/Uni Calendar/Prefab/Calender View.prefab` into your own canvas if you want to reuse it.
+3. Drag `Assets/Uni Calendar/Prefab/Calendar View.prefab` into your own canvas if you want to reuse it.
 4. Assign your own fonts, colors, and click behavior in the inspector if needed.
 
 ## Extending It
